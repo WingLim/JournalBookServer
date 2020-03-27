@@ -2,7 +2,19 @@
 
 A Serverside for [JournalBook](https://github.com/WingLim/JournalBook)
 
-## Usage
+## Deploy
+
+### Deploy with docker
+
+```bash
+$ docker run -itd \
+	-v /your/path/data:/root/data \
+	-e TOKEN=yourtoken \
+    -p 5000:5000 \
+	--restart always
+```
+
+### Deploy manually 
 
 1. Clone code
 ```bash
@@ -23,3 +35,11 @@ pwd = "yourtoken"
 ```bash
 $ pyhon api.py
 ```
+
+## Usage
+
+Open https://journalxbook.netlify.com/settings/
+
+Input server url and the token you set
+
+**Notes: The server url should have / in last**
