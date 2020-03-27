@@ -56,8 +56,18 @@ class DBSqlite():
     def fetch(self, table, key):
         conn, cu = self.connect()
         sql = "SELECT * FROM '{}' WHERE KEY = '{}';".format(table, key)
-        cu.execute(sql)
-        r = cu.fetchall()
+        with conn:
+            cu.execute(sql)
+            r = cu.fetchall()
+        self.disconnect(conn, cu)
+        return r
+
+    def fetchall(self, table):
+        conn, cu = self.connect()
+        sql = "SELECT * FROM '{}';".format(table)
+        with conn:
+            cu.execute(sql)
+            r = cu.fetchall()
         self.disconnect(conn, cu)
         return r
     
@@ -65,7 +75,8 @@ class DBSqlite():
     def fetchkeys(self, table):
         conn, cu = self.connect()
         sql = "SELECT KEY FROM '{}'".format(table)
-        cu.execute(sql)
+        with conn:
+            cu.execute(sql)
         r = cu.fetchall()
         self.disconnect(conn, cu)
         return r
@@ -73,9 +84,16 @@ class DBSqlite():
     # 删除数据
     def delete(self, table, key):
         conn, cu = self.connect()
-        sql = "DELETE FROM '{}' WHERE KEY = '{};".format(table, key)
-        cu.execute(sql)
-        conn.commit()
-        r = cu.fetchall()
-        self.disconnect()
-        return r
+        sql = "DELETE FROM '{}' WHERE KEY = '{}';".format(table, key)
+        with conn:
+            cu.execute(sql)
+        self.disconnect(conn, cu)
+    
+    # 清空数据表
+    def clear(self, table):
+        conn, cu = self.connect()
+        sql = "DELETE FROM '{}';".format(table)
+        with conn:
+            cu.execute(sql)
+        self.disconnect(conn, cu)
+        
