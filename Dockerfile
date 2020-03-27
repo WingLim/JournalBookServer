@@ -13,4 +13,4 @@ RUN apk add --no-cache gcc \
 # 清理缓存
 RUN rm -rf /tmp/* /var/cache/apk/*
 
-ENTRYPOINT [ "python", "api.py" ]
+ENTRYPOINT [ "gunicorn", "api:app", "-c", "gunicorn.conf.py"]
