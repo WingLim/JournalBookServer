@@ -7,7 +7,7 @@ WORKDIR /root
 
 COPY . .
 
-RUN apk add --no-cache gcc \
+RUN apk add --no-cache gcc musl-dev\
     &&pip install -r requirements.txt -i https://pypi.tuna.tsinghua.edu.cn/simple
 
 # 清理缓存
