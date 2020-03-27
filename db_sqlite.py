@@ -37,19 +37,15 @@ class DBSqlite():
     # 插入一条数据
     def insert(self, table, key, val):
         conn, cu = self.connect()
-        sql = '''INSERT INTO '{}' VALUES (
-            '{}',
-            '{}'
-        );'''.format(table, key, val)
+        sql = "INSERT INTO '{}' VALUES (?,?);".format(table)
+        print(sql)
         try:
             with conn:
-                cu.execute(sql)
+                cu.execute(sql, (key, val))
         except sqlite3.IntegrityError:
-            sql = '''UPDATE {}
-            SET VAL = '{}' WHERE KEY = '{}'
-            '''.format(table, val, key)
+            sql = "UPDATE '{}' SET VAL=? WHERE KEY=?".format(table)
             with conn:
-                cu.execute(sql)
+                cu.execute(sql, (val, key))
         self.disconnect(conn, cu)
     
     # 获取数据
