@@ -1,1 +1,1 @@
-pwd = "winglims"
+pwd = "yourtoken"
