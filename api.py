@@ -24,55 +24,91 @@ def verify_token(token):
 def unauthorized():
     return make_response(jsonify({'error': 'Unauthorized access'}), 401)
 
-class Journal(Resource):
+class Base(Resource):
+    def __init__(self):
+        self.table = ''
+
     @auth.login_required
-    def get(self):
-        table = request.args.get('table')
-        key = request.args.get('key')
-        jtype = request.args.get('type')
-        # 获取全部
-        if jtype == 'all':
-            pass
-        # 获取特定对象
-        elif jtype == 'object':
-            pass
-        # 获取所有 key
-        elif jtype == 'keys':
-            r = db.fetchkeys(table)
-            result = []
-            for x in r:
-                result.append(x[0])
-        # 普通获取
-        else:
-            r = db.fetch(table, key)
+    def get(self, key=None):
+        if key != None:
+            r = db.fetch(self.table, key)
             if len(r) != 0:
-                try:
-                    result = json.loads(r[0][1])
-                except json.decoder.JSONDecodeError:
-                    result = r[0][1]
+                result = r[0][1]
             else:
                 result = []
+            return make_response(result)
+        else:
+            r = db.fetchall(self.table)
+            result = r
+            return result
+    
+    @auth.login_required
+    def post(self, key):
+        data = request.get_json()
+        val = data['val']
+        db.insert(self.table, key, val)
+        return 'succeed'
+    
+    @auth.login_required
+    def delete(self, key=None):
+        if key != None:
+            db.delete(self.table, key)
+        else:
+            db.clear(self.table)
+        return {'status': 'succeed'}
+
+class Entries(Base):
+    def __init__(self):
+        self.table = 'entries'
+
+class Highlights(Base):
+    def __init__(self):
+      self.table = 'highlights' 
+
+class Questions(Base):
+    def __init__(self):
+        self.table = 'questions'
+
+    @auth.login_required
+    def get(self, key=None):
+        if key != None:
+            r = db.fetch(self.table, key)
+            result = json.loads(r[0][1])
+        else:
+            r = db.fetchall(self.table)
+            result = []
+            for one in r:
+                result.append(json.loads(one[1]))
         return result
 
-    @auth.login_required
-    def post(self):
-        data = request.get_json()
-        table = data['table']
-        key = data['key']
-        val = data['val']
-        db.insert(table, key, val)
-        return 'succeed'
+class Settings(Base):
+    def __init__(self):
+        self.table = 'settings'
 
-    @auth.login_required
-    def delete(self):
-        table = request.form['table']
-        key = request.form['key']
-        jtype = request.form['type']
-        # 清空整个表
-        if jtype == 'clear':
-            pass
+class TrackingEntries(Base):
+    def __init__(self):
+        self.table = 'trackingEntries'
 
-api.add_resource(Journal, '/journal')
+class TrackingQuestions(Base):
+    def __init__(self):
+        self.table = 'trackingQuestions'
+
+class Keys(Resource):
+    @auth.login_required
+    def get(self, table):
+        r = db.fetchkeys(table)
+        result = []
+        for x in r:
+            result.append(x[0])
+        return result
+    
+api.add_resource(Keys, '/journal/keys/<table>')
+api.add_resource(Entries, '/journal/entries/<key>', '/journal/entries')
+api.add_resource(Highlights, '/journal/highlights/<key>', '/journal/highlights')
+api.add_resource(Questions, '/journal/questions/<key>', '/journal/questions')
+api.add_resource(Settings, '/journal/settings/<key>', '/journal/settings')
+api.add_resource(TrackingEntries, '/journal/trackingEntries/<key>', '/journal/trackingEntries')
+api.add_resource(TrackingQuestions, '/journal/trackingQuestions/<key>', '/journal/trackingQuestions')
 
 if __name__ == "__main__":
     app.run()
