@@ -113,5 +113,15 @@ api.add_resource(Settings, '/journal/settings/<key>', '/journal/settings')
 api.add_resource(TrackingEntries, '/journal/trackingEntries/<key>', '/journal/trackingEntries')
 api.add_resource(TrackingQuestions, '/journal/trackingQuestions/<key>', '/journal/trackingQuestions')
 
+def inittable():
+    db.create_table('entries')
+    db.create_table('highlights')
+    db.create_table('questions')
+    db.create_table('settings')
+    db.create_table('trackingEntries')
+    db.create_table('trackingQuestions')
+
+inittable()
+
 if __name__ == "__main__":
-    app.run()
+    app.run(host='0.0.0.0')
