@@ -32,14 +32,17 @@ class Base(Resource):
     def get(self, key=None):
         if key != None:
             r = db.fetch(self.table, key)
+            print(r)
             if len(r) != 0:
                 result = r[0][1]
             else:
-                result = []
+                result = ""
             return make_response(result)
         else:
             r = db.fetchall(self.table)
-            result = r
+            result = []
+            for i in r:
+                result.append(i[1])
             return result
     
     @auth.login_required
